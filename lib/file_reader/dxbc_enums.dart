@@ -1,0 +1,629 @@
+// ignore_for_file: constant_identifier_names, camel_case_types
+
+enum D3dShaderInputType {
+  D3D_SIT_CBUFFER,
+  D3D_SIT_TBUFFER,
+  D3D_SIT_TEXTURE,
+  D3D_SIT_SAMPLER,
+  D3D_SIT_UAV_RWTYPED,
+  D3D_SIT_STRUCTURED,
+  D3D_SIT_UAV_RWSTRUCTURED,
+  D3D_SIT_BYTEADDRESS,
+  D3D_SIT_UAV_RWBYTEADDRESS,
+  D3D_SIT_UAV_APPEND_STRUCTURED,
+  D3D_SIT_UAV_CONSUME_STRUCTURED,
+  D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER,
+  D3D_SIT_RTACCELERATIONSTRUCTURE,
+  D3D_SIT_UAV_FEEDBACKTEXTURE,
+  D3D10_SIT_CBUFFER,
+  D3D10_SIT_TBUFFER,
+  D3D10_SIT_TEXTURE,
+  D3D10_SIT_SAMPLER,
+  D3D11_SIT_UAV_RWTYPED,
+  D3D11_SIT_STRUCTURED,
+  D3D11_SIT_UAV_RWSTRUCTURED,
+  D3D11_SIT_BYTEADDRESS,
+  D3D11_SIT_UAV_RWBYTEADDRESS,
+  D3D11_SIT_UAV_APPEND_STRUCTURED,
+  D3D11_SIT_UAV_CONSUME_STRUCTURED,
+  D3D11_SIT_UAV_RWSTRUCTURED_WITH_COUNTER
+}
+
+enum D3dShaderVariableClass {
+	D3D10_SVC_SCALAR,
+	D3D10_SVC_VECTOR,
+	D3D10_SVC_MATRIX_ROWS,
+	D3D10_SVC_MATRIX_COLUMNS,
+	D3D10_SVC_OBJECT,
+	D3D10_SVC_STRUCT,
+	D3D11_SVC_INTERFACE_CLASS,
+	D3D11_SVC_INTERFACE_POINTER
+}
+
+enum D3D10_SB_TOKENIZED_PROGRAM_TYPE {
+    D3D10_SB_PIXEL_SHADER,
+    D3D10_SB_VERTEX_SHADER,
+    D3D10_SB_GEOMETRY_SHADER,
+    
+    // D3D11 Shaders
+    D3D11_SB_HULL_SHADER,
+    D3D11_SB_DOMAIN_SHADER,
+    D3D11_SB_COMPUTE_SHADER
+}
+
+enum D3dShaderVariableType {
+	D3D10_SVT_VOID,
+	D3D10_SVT_BOOL,
+	D3D10_SVT_INT,
+	D3D10_SVT_FLOAT,
+	D3D10_SVT_STRING,
+	D3D10_SVT_TEXTURE,
+	D3D10_SVT_TEXTURE1D,
+	D3D10_SVT_TEXTURE2D,
+	D3D10_SVT_TEXTURE3D,
+	D3D10_SVT_TEXTURECUBE,
+	D3D10_SVT_SAMPLER,
+	D3D10_SVT_SAMPLER1D,
+	D3D10_SVT_SAMPLER2D,
+	D3D10_SVT_SAMPLER3D,
+	D3D10_SVT_SAMPLERCUBE,
+	D3D10_SVT_PIXELSHADER,
+	D3D10_SVT_VERTEXSHADER,
+	D3D10_SVT_PIXELFRAGMENT,
+	D3D10_SVT_VERTEXFRAGMENT,
+	D3D10_SVT_UINT,
+	D3D10_SVT_UINT8,
+	D3D10_SVT_GEOMETRYSHADER,
+	D3D10_SVT_RASTERIZER,
+	D3D10_SVT_DEPTHSTENCIL,
+	D3D10_SVT_BLEND,
+	D3D10_SVT_BUFFER,
+	D3D10_SVT_CBUFFER,
+	D3D10_SVT_TBUFFER,
+	D3D10_SVT_TEXTURE1DARRAY,
+	D3D10_SVT_TEXTURE2DARRAY,
+	D3D10_SVT_RENDERTARGETVIEW,
+	D3D10_SVT_DEPTHSTENCILVIEW,
+	D3D10_SVT_TEXTURE2DMS,
+	D3D10_SVT_TEXTURE2DMSARRAY,
+	D3D10_SVT_TEXTURECUBEARRAY,
+	D3D11_SVT_HULLSHADER,
+	D3D11_SVT_DOMAINSHADER,
+	D3D11_SVT_INTERFACE_POINTER,
+	D3D11_SVT_COMPUTESHADER,
+	D3D11_SVT_DOUBLE,
+	D3D11_SVT_RWTEXTURE1D,
+	D3D11_SVT_RWTEXTURE1DARRAY,
+	D3D11_SVT_RWTEXTURE2D,
+	D3D11_SVT_RWTEXTURE2DARRAY,
+	D3D11_SVT_RWTEXTURE3D,
+	D3D11_SVT_RWBUFFER,
+	D3D11_SVT_BYTEADDRESS_BUFFER,
+	D3D11_SVT_RWBYTEADDRESS_BUFFER,
+	D3D11_SVT_STRUCTURED_BUFFER,
+	D3D11_SVT_RWSTRUCTURED_BUFFER,
+	D3D11_SVT_APPEND_STRUCTURED_BUFFER,
+	D3D11_SVT_CONSUME_STRUCTURED_BUFFER
+}
+
+enum D3D10_SB_OPCODE_TYPE {
+    D3D10_SB_OPCODE_ADD          ,
+    D3D10_SB_OPCODE_AND          ,
+    D3D10_SB_OPCODE_BREAK        ,
+    D3D10_SB_OPCODE_BREAKC       ,
+    D3D10_SB_OPCODE_CALL         ,
+    D3D10_SB_OPCODE_CALLC        ,
+    D3D10_SB_OPCODE_CASE         ,
+    D3D10_SB_OPCODE_CONTINUE     ,
+    D3D10_SB_OPCODE_CONTINUEC    ,
+    D3D10_SB_OPCODE_CUT          ,
+    D3D10_SB_OPCODE_DEFAULT      ,
+    D3D10_SB_OPCODE_DERIV_RTX    ,
+    D3D10_SB_OPCODE_DERIV_RTY    ,
+    D3D10_SB_OPCODE_DISCARD      ,
+    D3D10_SB_OPCODE_DIV          ,
+    D3D10_SB_OPCODE_DP2          ,
+    D3D10_SB_OPCODE_DP3          ,
+    D3D10_SB_OPCODE_DP4          ,
+    D3D10_SB_OPCODE_ELSE         ,
+    D3D10_SB_OPCODE_EMIT         ,
+    D3D10_SB_OPCODE_EMITTHENCUT  ,
+    D3D10_SB_OPCODE_ENDIF        ,
+    D3D10_SB_OPCODE_ENDLOOP      ,
+    D3D10_SB_OPCODE_ENDSWITCH    ,
+    D3D10_SB_OPCODE_EQ           ,
+    D3D10_SB_OPCODE_EXP          ,
+    D3D10_SB_OPCODE_FRC          ,
+    D3D10_SB_OPCODE_FTOI         ,
+    D3D10_SB_OPCODE_FTOU         ,
+    D3D10_SB_OPCODE_GE           ,
+    D3D10_SB_OPCODE_IADD         ,
+    D3D10_SB_OPCODE_IF           ,
+    D3D10_SB_OPCODE_IEQ          ,
+    D3D10_SB_OPCODE_IGE          ,
+    D3D10_SB_OPCODE_ILT          ,
+    D3D10_SB_OPCODE_IMAD         ,
+    D3D10_SB_OPCODE_IMAX         ,
+    D3D10_SB_OPCODE_IMIN         ,
+    D3D10_SB_OPCODE_IMUL         ,
+    D3D10_SB_OPCODE_INE          ,
+    D3D10_SB_OPCODE_INEG         ,
+    D3D10_SB_OPCODE_ISHL         ,
+    D3D10_SB_OPCODE_ISHR         ,
+    D3D10_SB_OPCODE_ITOF         ,
+    D3D10_SB_OPCODE_LABEL        ,
+    D3D10_SB_OPCODE_LD           ,
+    D3D10_SB_OPCODE_LD_MS        ,
+    D3D10_SB_OPCODE_LOG          ,
+    D3D10_SB_OPCODE_LOOP         ,
+    D3D10_SB_OPCODE_LT           ,
+    D3D10_SB_OPCODE_MAD          ,
+    D3D10_SB_OPCODE_MIN          ,
+    D3D10_SB_OPCODE_MAX          ,
+    D3D10_SB_OPCODE_CUSTOMDATA   ,
+    D3D10_SB_OPCODE_MOV          ,
+    D3D10_SB_OPCODE_MOVC         ,
+    D3D10_SB_OPCODE_MUL          ,
+    D3D10_SB_OPCODE_NE           ,
+    D3D10_SB_OPCODE_NOP          ,
+    D3D10_SB_OPCODE_NOT          ,
+    D3D10_SB_OPCODE_OR           ,
+    D3D10_SB_OPCODE_RESINFO      ,
+    D3D10_SB_OPCODE_RET          ,
+    D3D10_SB_OPCODE_RETC         ,
+    D3D10_SB_OPCODE_ROUND_NE     ,
+    D3D10_SB_OPCODE_ROUND_NI     ,
+    D3D10_SB_OPCODE_ROUND_PI     ,
+    D3D10_SB_OPCODE_ROUND_Z      ,
+    D3D10_SB_OPCODE_RSQ          ,
+    D3D10_SB_OPCODE_SAMPLE       ,
+    D3D10_SB_OPCODE_SAMPLE_C     ,
+    D3D10_SB_OPCODE_SAMPLE_C_LZ  ,
+    D3D10_SB_OPCODE_SAMPLE_L     ,
+    D3D10_SB_OPCODE_SAMPLE_D     ,
+    D3D10_SB_OPCODE_SAMPLE_B     ,
+    D3D10_SB_OPCODE_SQRT         ,
+    D3D10_SB_OPCODE_SWITCH       ,
+    D3D10_SB_OPCODE_SINCOS       ,
+    D3D10_SB_OPCODE_UDIV         ,
+    D3D10_SB_OPCODE_ULT          ,
+    D3D10_SB_OPCODE_UGE          ,
+    D3D10_SB_OPCODE_UMUL         ,
+    D3D10_SB_OPCODE_UMAD         ,
+    D3D10_SB_OPCODE_UMAX         ,
+    D3D10_SB_OPCODE_UMIN         ,
+    D3D10_SB_OPCODE_USHR         ,
+    D3D10_SB_OPCODE_UTOF         ,
+    D3D10_SB_OPCODE_XOR          ,
+    D3D10_SB_OPCODE_DCL_RESOURCE                     , // DCL* opcodes have
+    D3D10_SB_OPCODE_DCL_CONSTANT_BUFFER              , // custom operand formats.
+    D3D10_SB_OPCODE_DCL_SAMPLER                      ,
+    D3D10_SB_OPCODE_DCL_INDEX_RANGE                  ,
+    D3D10_SB_OPCODE_DCL_GS_OUTPUT_PRIMITIVE_TOPOLOGY ,
+    D3D10_SB_OPCODE_DCL_GS_INPUT_PRIMITIVE           ,
+    D3D10_SB_OPCODE_DCL_MAX_OUTPUT_VERTEX_COUNT      ,
+    D3D10_SB_OPCODE_DCL_INPUT                        ,
+    D3D10_SB_OPCODE_DCL_INPUT_SGV                    ,
+    D3D10_SB_OPCODE_DCL_INPUT_SIV                    ,
+    D3D10_SB_OPCODE_DCL_INPUT_PS                     ,
+    D3D10_SB_OPCODE_DCL_INPUT_PS_SGV                 ,
+    D3D10_SB_OPCODE_DCL_INPUT_PS_SIV                 ,
+    D3D10_SB_OPCODE_DCL_OUTPUT                       ,
+    D3D10_SB_OPCODE_DCL_OUTPUT_SGV                   ,
+    D3D10_SB_OPCODE_DCL_OUTPUT_SIV                   ,
+    D3D10_SB_OPCODE_DCL_TEMPS                        ,
+    D3D10_SB_OPCODE_DCL_INDEXABLE_TEMP               ,
+    D3D10_SB_OPCODE_DCL_GLOBAL_FLAGS                 ,
+
+// -----------------------------------------------
+
+    D3D10_SB_OPCODE_RESERVED0,
+    
+// ---------- DX 10.1 op codes---------------------
+
+    D3D10_1_SB_OPCODE_LOD,
+    D3D10_1_SB_OPCODE_GATHER4,
+    D3D10_1_SB_OPCODE_SAMPLE_POS,
+    D3D10_1_SB_OPCODE_SAMPLE_INFO,
+
+// -----------------------------------------------
+
+    // This should be 10.1's version of D3D10_SB_NUM_OPCODES
+    D3D10_1_SB_OPCODE_RESERVED1,
+
+// ---------- DX 11 op codes---------------------
+    D3D11_SB_OPCODE_HS_DECLS                         , // token marks beginning of HS sub-shader
+    D3D11_SB_OPCODE_HS_CONTROL_POINT_PHASE           , // token marks beginning of HS sub-shader
+    D3D11_SB_OPCODE_HS_FORK_PHASE                    , // token marks beginning of HS sub-shader
+    D3D11_SB_OPCODE_HS_JOIN_PHASE                    , // token marks beginning of HS sub-shader
+
+    D3D11_SB_OPCODE_EMIT_STREAM                      ,
+    D3D11_SB_OPCODE_CUT_STREAM                       ,
+    D3D11_SB_OPCODE_EMITTHENCUT_STREAM               ,
+    D3D11_SB_OPCODE_INTERFACE_CALL                   ,
+
+    D3D11_SB_OPCODE_BUFINFO                          ,
+    D3D11_SB_OPCODE_DERIV_RTX_COARSE                 ,
+    D3D11_SB_OPCODE_DERIV_RTX_FINE                   ,
+    D3D11_SB_OPCODE_DERIV_RTY_COARSE                 ,
+    D3D11_SB_OPCODE_DERIV_RTY_FINE                   ,
+    D3D11_SB_OPCODE_GATHER4_C                        ,
+    D3D11_SB_OPCODE_GATHER4_PO                       ,
+    D3D11_SB_OPCODE_GATHER4_PO_C                     ,
+    D3D11_SB_OPCODE_RCP                              ,
+    D3D11_SB_OPCODE_F32TOF16                         ,
+    D3D11_SB_OPCODE_F16TOF32                         ,
+    D3D11_SB_OPCODE_UADDC                            ,
+    D3D11_SB_OPCODE_USUBB                            ,
+    D3D11_SB_OPCODE_COUNTBITS                        ,
+    D3D11_SB_OPCODE_FIRSTBIT_HI                      ,
+    D3D11_SB_OPCODE_FIRSTBIT_LO                      ,
+    D3D11_SB_OPCODE_FIRSTBIT_SHI                     ,
+    D3D11_SB_OPCODE_UBFE                             ,
+    D3D11_SB_OPCODE_IBFE                             ,
+    D3D11_SB_OPCODE_BFI                              ,
+    D3D11_SB_OPCODE_BFREV                            ,
+    D3D11_SB_OPCODE_SWAPC                            ,
+
+    D3D11_SB_OPCODE_DCL_STREAM                       ,
+    D3D11_SB_OPCODE_DCL_FUNCTION_BODY                ,
+    D3D11_SB_OPCODE_DCL_FUNCTION_TABLE               ,
+    D3D11_SB_OPCODE_DCL_INTERFACE                    ,
+    
+    D3D11_SB_OPCODE_DCL_INPUT_CONTROL_POINT_COUNT    ,
+    D3D11_SB_OPCODE_DCL_OUTPUT_CONTROL_POINT_COUNT   ,
+    D3D11_SB_OPCODE_DCL_TESS_DOMAIN                  ,
+    D3D11_SB_OPCODE_DCL_TESS_PARTITIONING            ,
+    D3D11_SB_OPCODE_DCL_TESS_OUTPUT_PRIMITIVE        ,
+    D3D11_SB_OPCODE_DCL_HS_MAX_TESSFACTOR            ,
+    D3D11_SB_OPCODE_DCL_HS_FORK_PHASE_INSTANCE_COUNT ,
+    D3D11_SB_OPCODE_DCL_HS_JOIN_PHASE_INSTANCE_COUNT ,
+
+    D3D11_SB_OPCODE_DCL_THREAD_GROUP                 ,
+    D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_TYPED  ,
+    D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_RAW    ,
+    D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_STRUCTURED,
+    D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_RAW,
+    D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_STRUCTURED,
+    D3D11_SB_OPCODE_DCL_RESOURCE_RAW                 ,
+    D3D11_SB_OPCODE_DCL_RESOURCE_STRUCTURED          ,
+    D3D11_SB_OPCODE_LD_UAV_TYPED                     ,
+    D3D11_SB_OPCODE_STORE_UAV_TYPED                  ,
+    D3D11_SB_OPCODE_LD_RAW                           ,
+    D3D11_SB_OPCODE_STORE_RAW                        ,
+    D3D11_SB_OPCODE_LD_STRUCTURED                    ,
+    D3D11_SB_OPCODE_STORE_STRUCTURED                 ,
+    D3D11_SB_OPCODE_ATOMIC_AND                       ,
+    D3D11_SB_OPCODE_ATOMIC_OR                        ,
+    D3D11_SB_OPCODE_ATOMIC_XOR                       ,
+    D3D11_SB_OPCODE_ATOMIC_CMP_STORE                 ,
+    D3D11_SB_OPCODE_ATOMIC_IADD                      ,
+    D3D11_SB_OPCODE_ATOMIC_IMAX                      ,
+    D3D11_SB_OPCODE_ATOMIC_IMIN                      ,
+    D3D11_SB_OPCODE_ATOMIC_UMAX                      ,
+    D3D11_SB_OPCODE_ATOMIC_UMIN                      ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_ALLOC                 ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_CONSUME               ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_IADD                  ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_AND                   ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_OR                    ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_XOR                   ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_EXCH                  ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_CMP_EXCH              ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_IMAX                  ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_IMIN                  ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_UMAX                  ,
+    D3D11_SB_OPCODE_IMM_ATOMIC_UMIN                  ,   
+    D3D11_SB_OPCODE_SYNC                             ,
+    
+    D3D11_SB_OPCODE_DADD                             ,
+    D3D11_SB_OPCODE_DMAX                             ,
+    D3D11_SB_OPCODE_DMIN                             ,
+    D3D11_SB_OPCODE_DMUL                             ,
+    D3D11_SB_OPCODE_DEQ                              ,
+    D3D11_SB_OPCODE_DGE                              ,
+    D3D11_SB_OPCODE_DLT                              ,
+    D3D11_SB_OPCODE_DNE                              ,
+    D3D11_SB_OPCODE_DMOV                             ,
+    D3D11_SB_OPCODE_DMOVC                            ,
+    D3D11_SB_OPCODE_DTOF                             ,
+    D3D11_SB_OPCODE_FTOD                             ,
+
+    D3D11_SB_OPCODE_EVAL_SNAPPED                     ,
+    D3D11_SB_OPCODE_EVAL_SAMPLE_INDEX                ,
+    D3D11_SB_OPCODE_EVAL_CENTROID                    ,
+    
+    D3D11_SB_OPCODE_DCL_GS_INSTANCE_COUNT            ,
+
+    D3D10_SB_NUM_OPCODES                                     // Should be the last entry
+}
+
+enum D3D10_SB_INSTRUCTION_TEST_BOOLEAN {
+    D3D10_SB_INSTRUCTION_TEST_ZERO,
+    D3D10_SB_INSTRUCTION_TEST_NONZERO
+}
+
+enum D3D10_SB_OPERAND_NUM_COMPONENTS {
+    D3D10_SB_OPERAND_0_COMPONENT,
+    D3D10_SB_OPERAND_1_COMPONENT,
+    D3D10_SB_OPERAND_4_COMPONENT,
+    D3D10_SB_OPERAND_N_COMPONENT // unused for now
+}
+
+enum D3D10_SB_OPERAND_4_COMPONENT_SELECTION_MODE {
+    D3D10_SB_OPERAND_4_COMPONENT_MASK_MODE,  // mask 4 components
+    D3D10_SB_OPERAND_4_COMPONENT_SWIZZLE_MODE,  // swizzle 4 components
+    D3D10_SB_OPERAND_4_COMPONENT_SELECT_1_MODE, // select 1 of 4 components
+}
+
+enum D3D10_SB_4_COMPONENT_NAME {
+    D3D10_SB_4_COMPONENT_X,
+    D3D10_SB_4_COMPONENT_Y,
+    D3D10_SB_4_COMPONENT_Z,
+    D3D10_SB_4_COMPONENT_W,
+}
+
+enum D3D10_SB_OPERAND_TYPE {
+    D3D10_SB_OPERAND_TYPE_TEMP,  // Temporary Register File
+    D3D10_SB_OPERAND_TYPE_INPUT,  // General Input Register File
+    D3D10_SB_OPERAND_TYPE_OUTPUT,  // General Output Register File
+    D3D10_SB_OPERAND_TYPE_INDEXABLE_TEMP,  // Temporary Register File (indexable)
+    D3D10_SB_OPERAND_TYPE_IMMEDIATE32,  // 32bit/component immediate value(s)
+                                          // If for example, operand token bits
+                                          // [01:00]==D3D10_SB_OPERAND_4_COMPONENT,
+                                          // this means that the operand type:
+                                          // D3D10_SB_OPERAND_TYPE_IMMEDIATE32
+                                          // results in 4 additional 32bit
+                                          // DWORDS present for the operand.
+    D3D10_SB_OPERAND_TYPE_IMMEDIATE64,  // 64bit/comp.imm.val(s)HI:LO
+    D3D10_SB_OPERAND_TYPE_SAMPLER,  // Reference to sampler state
+    D3D10_SB_OPERAND_TYPE_RESOURCE,  // Reference to memory resource (e.g. texture)
+    D3D10_SB_OPERAND_TYPE_CONSTANT_BUFFER,  // Reference to constant buffer
+    D3D10_SB_OPERAND_TYPE_IMMEDIATE_CONSTANT_BUFFER,  // Reference to immediate constant buffer
+    D3D10_SB_OPERAND_TYPE_LABEL, // Label
+    D3D10_SB_OPERAND_TYPE_INPUT_PRIMITIVEID, // Input primitive ID
+    D3D10_SB_OPERAND_TYPE_OUTPUT_DEPTH, // Output Depth
+    D3D10_SB_OPERAND_TYPE_NULL, // Null register, used to discard results of operations
+                                               // Below Are operands new in DX 10.1
+    D3D10_SB_OPERAND_TYPE_RASTERIZER, // DX10.1 Rasterizer register, used to denote the depth/stencil and render target resources
+    D3D10_SB_OPERAND_TYPE_OUTPUT_COVERAGE_MASK, // DX10.1 PS output MSAA coverage mask (scalar)
+                                               // Below Are operands new in DX 11
+    D3D11_SB_OPERAND_TYPE_STREAM, // Reference to GS stream output resource
+    D3D11_SB_OPERAND_TYPE_FUNCTION_BODY, // Reference to a function definition
+    D3D11_SB_OPERAND_TYPE_FUNCTION_TABLE, // Reference to a set of functions used by a class
+    D3D11_SB_OPERAND_TYPE_INTERFACE, // Reference to an interface
+    D3D11_SB_OPERAND_TYPE_FUNCTION_INPUT, // Reference to an input parameter to a function
+    D3D11_SB_OPERAND_TYPE_FUNCTION_OUTPUT, // Reference to an output parameter to a function
+    D3D11_SB_OPERAND_TYPE_OUTPUT_CONTROL_POINT_ID, // HS Control Point phase input saying which output control point ID this is
+    D3D11_SB_OPERAND_TYPE_INPUT_FORK_INSTANCE_ID, // HS Fork Phase input instance ID
+    D3D11_SB_OPERAND_TYPE_INPUT_JOIN_INSTANCE_ID, // HS Join Phase input instance ID
+    D3D11_SB_OPERAND_TYPE_INPUT_CONTROL_POINT, // HS Fork+Join, DS phase input control points (array of them)
+    D3D11_SB_OPERAND_TYPE_OUTPUT_CONTROL_POINT, // HS Fork+Join phase output control points (array of them)
+    D3D11_SB_OPERAND_TYPE_INPUT_PATCH_CONSTANT, // DS+HSJoin Input Patch Constants (array of them)
+    D3D11_SB_OPERAND_TYPE_INPUT_DOMAIN_POINT, // DS Input Domain point
+    D3D11_SB_OPERAND_TYPE_THIS_POINTER, // Reference to an interface this pointer
+    D3D11_SB_OPERAND_TYPE_UNORDERED_ACCESS_VIEW, // Reference to UAV u#
+    D3D11_SB_OPERAND_TYPE_THREAD_GROUP_SHARED_MEMORY, // Reference to Thread Group Shared Memory g#
+    D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID, // Compute Shader Thread ID
+    D3D11_SB_OPERAND_TYPE_INPUT_THREAD_GROUP_ID, // Compute Shader Thread Group ID
+    D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP, // Compute Shader Thread ID In Thread Group
+    D3D11_SB_OPERAND_TYPE_INPUT_COVERAGE_MASK, // Pixel shader coverage mask input
+    D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP_FLATTENED, // Compute Shader Thread ID In Group Flattened to a 1D value.
+    D3D11_SB_OPERAND_TYPE_INPUT_GS_INSTANCE_ID, // Input GS instance ID
+    D3D11_SB_OPERAND_TYPE_OUTPUT_DEPTH_GREATER_EQUAL, // Output Depth, forced to be greater than or equal than current depth
+    D3D11_SB_OPERAND_TYPE_OUTPUT_DEPTH_LESS_EQUAL, // Output Depth, forced to be less than or equal to current depth
+    D3D11_SB_OPERAND_TYPE_CYCLE_COUNTER, // Cycle counter
+}
+
+enum D3D10_SB_OPERAND_INDEX_DIMENSION {
+    D3D10_SB_OPERAND_INDEX_0D, // e.g. Position
+    D3D10_SB_OPERAND_INDEX_1D, // Most common.  e.g. Temp registers.
+    D3D10_SB_OPERAND_INDEX_2D, // e.g. Geometry Program Input registers.
+    D3D10_SB_OPERAND_INDEX_3D, // 3D rarely if ever used.
+}
+
+enum D3D10_SB_OPERAND_INDEX_REPRESENTATION {
+    D3D10_SB_OPERAND_INDEX_IMMEDIATE32, // Extra DWORD
+    D3D10_SB_OPERAND_INDEX_IMMEDIATE64, // 2 Extra DWORDs
+                                                     //   (HI32:LO32)
+    D3D10_SB_OPERAND_INDEX_RELATIVE, // Extra operand
+    D3D10_SB_OPERAND_INDEX_IMMEDIATE32_PLUS_RELATIVE, // Extra DWORD followed by
+                                                     //   extra operand
+    D3D10_SB_OPERAND_INDEX_IMMEDIATE64_PLUS_RELATIVE, // 2 Extra DWORDS
+                                                     //   (HI32:LO32) followed
+                                                     //   by extra operand
+}
+
+enum D3D10_SB_OPERAND_4_COMPONENT_MASK {
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_NONE,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_X,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_Y,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XY,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_Z,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XZ,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_YZ,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XYZ,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_W,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_YW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XYW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_ZW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XZW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_YZW,
+	D3D10_SB_OPERAND_4_COMPONENT_MASK_XYZW;
+
+  bool get x => (index & 1 << 0) != 0;
+  bool get y => (index & 1 << 1) != 0;
+  bool get z => (index & 1 << 2) != 0;
+  bool get w => (index & 1 << 3) != 0;
+}
+
+enum D3010_SB_OPERAND_4_SWIZZLE_MASK {
+	D3D10_SB_OPERAND_4_SWIZZLE_MASK_X,
+	D3D10_SB_OPERAND_4_SWIZZLE_MASK_Y,
+	D3D10_SB_OPERAND_4_SWIZZLE_MASK_Z,
+	D3D10_SB_OPERAND_4_SWIZZLE_MASK_W,
+}
+
+enum D3D10_SB_RESOURCE_RETURN_TYPE {
+    D3D10_SB_RETURN_TYPE_UNKNOWN,
+    D3D10_SB_RETURN_TYPE_UNORM,
+    D3D10_SB_RETURN_TYPE_SNORM,
+    D3D10_SB_RETURN_TYPE_SINT,
+    D3D10_SB_RETURN_TYPE_UINT,
+    D3D10_SB_RETURN_TYPE_FLOAT,
+    D3D10_SB_RETURN_TYPE_MIXED,
+    D3D11_SB_RETURN_TYPE_DOUBLE,
+    D3D11_SB_RETURN_TYPE_CONTINUED,
+    D3D11_SB_RETURN_TYPE_UNUSED,
+}
+
+enum D3D10_SB_EXTENDED_OPCODE_TYPE {
+    D3D10_SB_EXTENDED_OPCODE_EMPTY,
+    D3D10_SB_EXTENDED_OPCODE_SAMPLE_CONTROLS,
+    D3D11_SB_EXTENDED_OPCODE_RESOURCE_DIM,
+    D3D11_SB_EXTENDED_OPCODE_RESOURCE_RETURN_TYPE,
+}
+
+enum D3D10_SB_RESOURCE_DIMENSION {
+    D3D10_SB_RESOURCE_DIMENSION_UNKNOWN,
+    D3D10_SB_RESOURCE_DIMENSION_BUFFER,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE1D,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE2D,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE2DMS,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE3D,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURECUBE,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE1DARRAY,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE2DARRAY,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURE2DMSARRAY,
+    D3D10_SB_RESOURCE_DIMENSION_TEXTURECUBEARRAY,
+    D3D11_SB_RESOURCE_DIMENSION_RAW_BUFFER,
+    D3D11_SB_RESOURCE_DIMENSION_STRUCTURED_BUFFER,
+}
+
+enum D3D10_SB_CONSTANT_BUFFER_ACCESS_PATTERN {
+    D3D10_SB_CONSTANT_BUFFER_IMMEDIATE_INDEXED,
+    D3D10_SB_CONSTANT_BUFFER_DYNAMIC_INDEXED
+}
+
+enum D3D10_SB_EXTENDED_OPERAND_TYPE {
+    D3D10_SB_EXTENDED_OPERAND_EMPTY, // Might be used if this
+                                               // enum is full and
+                                               // further extended opcode
+                                               // is needed.
+    D3D10_SB_EXTENDED_OPERAND_MODIFIER,
+}
+
+enum D3D10_SB_OPERAND_MODIFIER {
+    D3D10_SB_OPERAND_MODIFIER_NONE, // Nop.  This is the implied
+                                             // default if the extended
+                                             // operand is not present for
+                                             // an operand for which source
+                                             // modifiers are meaningful
+    D3D10_SB_OPERAND_MODIFIER_NEG, // Negate
+    D3D10_SB_OPERAND_MODIFIER_ABS, // Absolute value, abs()
+    D3D10_SB_OPERAND_MODIFIER_ABSNEG, // -abs()
+}
+
+enum D11_SB_OPERAND_MIN_PRECISION {
+    D3D11_SB_OPERAND_MIN_PRECISION_DEFAULT, // Default precision 
+                                                       // for the shader model
+    D3D11_SB_OPERAND_MIN_PRECISION_FLOAT_16, // Min 16 bit/component float
+    D3D11_SB_OPERAND_MIN_PRECISION_FLOAT_2_8, // Min 10(2.8)bit/comp. float
+    D3D11_SB_OPERAND_MIN_PRECISION_SINT_16, // Min 16 bit/comp. signed integer
+    D3D11_SB_OPERAND_MIN_PRECISION_UINT_16, // Min 16 bit/comp. unsigned integer
+}
+
+enum D3D10_SB_RESINFO_INSTRUCTION_RETURN_TYPE {
+    D3D10_SB_RESINFO_INSTRUCTION_RETURN_FLOAT,
+    D3D10_SB_RESINFO_INSTRUCTION_RETURN_RCPFLOAT,
+    D3D10_SB_RESINFO_INSTRUCTION_RETURN_UINT
+}
+
+enum D3D10_SB_CUSTOMDATA_CLASS {
+    D3D10_SB_CUSTOMDATA_COMMENT,
+    D3D10_SB_CUSTOMDATA_DEBUGINFO,
+    D3D10_SB_CUSTOMDATA_OPAQUE,
+    D3D10_SB_CUSTOMDATA_DCL_IMMEDIATE_CONSTANT_BUFFER,
+}
+
+enum D3D10_SB_SAMPLER_MODE {
+    D3D10_SB_SAMPLER_MODE_DEFAULT,
+    D3D10_SB_SAMPLER_MODE_COMPARISON,
+    D3D10_SB_SAMPLER_MODE_MONO,
+}
+
+enum D3D10_SB_INTERPOLATION_MODE {
+    D3D10_SB_INTERPOLATION_UNDEFINED,
+    D3D10_SB_INTERPOLATION_CONSTANT,
+    D3D10_SB_INTERPOLATION_LINEAR,
+    D3D10_SB_INTERPOLATION_LINEAR_CENTROID,
+    D3D10_SB_INTERPOLATION_LINEAR_NOPERSPECTIVE,
+    D3D10_SB_INTERPOLATION_LINEAR_NOPERSPECTIVE_CENTROID,
+    D3D10_SB_INTERPOLATION_LINEAR_SAMPLE,
+    D3D10_SB_INTERPOLATION_LINEAR_NOPERSPECTIVE_SAMPLE,
+}
+
+enum D3D10_SB_NAME {
+    D3D10_SB_NAME_UNDEFINED,
+    D3D10_SB_NAME_POSITION,
+    D3D10_SB_NAME_CLIP_DISTANCE,
+    D3D10_SB_NAME_CULL_DISTANCE,
+    D3D10_SB_NAME_RENDER_TARGET_ARRAY_INDEX,
+    D3D10_SB_NAME_VIEWPORT_ARRAY_INDEX,
+    D3D10_SB_NAME_VERTEX_ID,
+    D3D10_SB_NAME_PRIMITIVE_ID,
+    D3D10_SB_NAME_INSTANCE_ID,
+    D3D10_SB_NAME_IS_FRONT_FACE,
+    D3D10_SB_NAME_SAMPLE_INDEX,
+}
+
+enum D3D10_SB_PRIMITIVE_TOPOLOGY {
+    D3D10_SB_PRIMITIVE_TOPOLOGY_UNDEFINED,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_POINTLIST,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_LINELIST,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_LINESTRIP,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
+    D3D10_SB_PRIMITIVE_6,
+    D3D10_SB_PRIMITIVE_7,
+    D3D10_SB_PRIMITIVE_8,
+    D3D10_SB_PRIMITIVE_9,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_LINELIST_ADJ,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ,
+    D3D10_SB_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ,
+}
+
+enum D3D10_SB_PRIMITIVE {
+    D3D10_SB_PRIMITIVE_UNDEFINED,
+    D3D10_SB_PRIMITIVE_POINT,
+    D3D10_SB_PRIMITIVE_LINE,
+    D3D10_SB_PRIMITIVE_TRIANGLE,
+    D3D10_SB_PRIMITIVE_4,
+    D3D10_SB_PRIMITIVE_5,
+    D3D10_SB_PRIMITIVE_LINE_ADJ,
+    D3D10_SB_PRIMITIVE_TRIANGLE_ADJ,
+}
+
+enum RegisterComponentType {
+    Unknown,
+    UInt32,
+    SInt32,
+    Float32,
+    UInt16,
+    SInt16,
+    Float16,
+    UInt64,
+    SInt64,
+    Float64,
+}
+
+enum D3D_SHADER_INPUT_FLAGS {
+  D3D_SIF_USERPACKED,
+  D3D_SIF_COMPARISON_SAMPLER,
+  D3D_SIF_TEXTURE_COMPONENT_0,
+  D3D_SIF_TEXTURE_COMPONENT_1,
+  D3D_SIF_TEXTURE_COMPONENTS,
+  D3D_SIF_UNUSED,
+}
