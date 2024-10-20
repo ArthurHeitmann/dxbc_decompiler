@@ -74,6 +74,20 @@ class ConstantBufferBinding extends ResourceBinding implements StructLike {
       throw Exception("Can't lookup member chain for const buffers with more than one member (buffer $name, members: ${members.length})");
     members[0].getMemberChainDynamic(offset, chainOut, false);
   }
+  
+  @override
+  ({bool isMatrix, MatrixDataType? matrix, int absOffset}) isMatrixMember(int offset, int size) {
+    int remainingSize = size;
+    for (var member in members) {
+      if (offset >= member.offset + member.size || offset < member.offset)
+        continue;
+      var result = member.isMatrixMember(offset - member.offset, remainingSize, member.offset);
+      if (result.isMatrix && offset + size > member.offset + member.size)
+        throw Exception("Member $name is not fully covered by matrix");
+      return result;
+    }
+    throw Exception("Offset $offset not in struct of size $size");
+  }
 }
 
 class TemplateBinding extends ResourceBinding {

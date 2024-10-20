@@ -118,7 +118,9 @@ void parseOpcodes(DecompilerState state) {
         _parseCast(state, opcode, tFloat, numType: NumberType.int);
         break;
       // case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_LABEL:
-      // case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_LD:
+      case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_LD:
+        _parseLoad(state, opcode);
+        break;
       // case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_LD_MS:
       case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_LOG:
         _parseFunctionCall(state, opcode, "log");
@@ -233,6 +235,12 @@ void parseOpcodes(DecompilerState state) {
       case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_LD_STRUCTURED:
         _parseLoadStructured(state, opcode);
         break;
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_STORE_STRUCTURED:
+        _parseStoreStructured(state, opcode);
+        break;
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_STORE_UAV_TYPED:
+        _parseStoreUavTyped(state, opcode);
+        break;
       case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_DCL_RESOURCE:
       case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_DCL_CONSTANT_BUFFER:
       case D3D10_SB_OPCODE_TYPE.D3D10_SB_OPCODE_DCL_SAMPLER:
@@ -282,13 +290,16 @@ void parseOpcodes(DecompilerState state) {
       // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_HS_MAX_TESSFACTOR:
       // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_HS_FORK_PHASE_INSTANCE_COUNT:
       // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_HS_JOIN_PHASE_INSTANCE_COUNT:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_TYPED:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_RAW:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_STRUCTURED:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_RAW:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_STRUCTURED:
-      // case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_RESOURCE_RAW:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP:
+        var op = opcode as ThreadGroupDeclarationOpcode;
+        state.functionAttributes.add("numthreads(${op.x}, ${op.y}, ${op.z})");
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_TYPED:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_RAW:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_UNORDERED_ACCESS_VIEW_STRUCTURED:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_RAW:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_THREAD_GROUP_SHARED_MEMORY_STRUCTURED:
+      case D3D10_SB_OPCODE_TYPE.D3D11_SB_OPCODE_DCL_RESOURCE_RAW:
+        parseDeclResourceBinding(opcode as DeclarationWithRegisterOpcode, state);
       default:
       if (opcode is InstructionOpcode)
         state.addStatement(InstructionCommentStatement(opcode));
@@ -453,6 +464,28 @@ void _parseBufInfo(DecompilerState state, Opcode opcode) {
   state.addStatement(assign);
 }
 
+const _resourceDimensions = {
+  "Texture1D": 1,
+  "Texture1DArray": 2,
+  "Texture2D": 2,
+  "Texture2DArray": 3,
+  "Texture2DMS": 2,
+  "Texture3D": 3,
+};
+void _parseLoad(DecompilerState state, Opcode opcode) {
+  var op = opcode as InstructionOpcode;
+  var dest = Register.fromOperand(state, op.operands[0]);
+  var index = Expression.fromOperand(state, op.operands[1]);
+  var src = Register.fromOperand(state, op.operands[2]);
+  var resBind = src.lookupBinding(state) as TemplateBinding;
+  var dimensions = _resourceDimensions[resBind.className]!;
+  index.swizzle?.trim(dimensions);
+  src.addDynamicMemberAccess(index);
+  src.alwaysWriteName = true;
+  var assign = AssignmentStatement(dest, src);
+  state.addStatement(assign);
+}
+
 const _loadRequiresStatus = "Buffer";
 void _parseLoadStructured(DecompilerState state, Opcode opcode) {
   var op = opcode as InstructionOpcode;
@@ -509,7 +542,7 @@ void _parseLoadStructured(DecompilerState state, Opcode opcode) {
       assignExp = joinedExp;
     }
     else {
-      (assignExp as FunctionCall).addMemberAccess(state, resBind.innerType as StructDataType, offset, 1, assignExp.swizzle!);
+      assignExp = (assignExp as FunctionCall).addMemberAccess(state, resBind.innerType as StructDataType, offset, 1, assignExp.swizzle!);
     }
   }
   if (!hasMemberAccess || !requiresMultipleStatements) {
@@ -517,6 +550,38 @@ void _parseLoadStructured(DecompilerState state, Opcode opcode) {
       assignExp.swizzle = null;
   }
   var assign = AssignmentStatement(dest, assignExp);
+  state.addStatement(assign);
+}
+
+void _parseStoreStructured(DecompilerState state, Opcode opcode) {
+  var op = opcode as InstructionOpcode;
+  var res = Register.fromOperand(state, op.operands[0]);
+  var index = Expression.fromOperand(state, op.operands[1]);
+  var offset = Expression.fromOperand(state, op.operands[2], numType: NumberType.uint);
+  var src = Expression.fromOperand(state, op.operands[3]);
+  var resBind = res.lookupBinding(state) as TemplateBinding;
+  var hasMemberAccess = resBind.innerType is StructDataType;
+  res.addDynamicMemberAccess(index);
+  if (hasMemberAccess)
+    res.addMemberAccess(state, resBind.innerType as StructDataType, offset, 1, res.swizzle!);
+  else if (offset is! HexLiteralExpression || offset.value != 0)
+    throw Exception("StoreStructured with non-zero offset");
+  res.alwaysWriteName = true;
+  var assign = AssignmentStatement(res, src);
+  state.addStatement(assign);
+}
+
+void _parseStoreUavTyped(DecompilerState state, Opcode opcode) {
+  var op = opcode as InstructionOpcode;
+  var res = Register.fromOperand(state, op.operands[0]);
+  var index = Expression.fromOperand(state, op.operands[1]);
+  var src = Expression.fromOperand(state, op.operands[2]);
+  res.addDynamicMemberAccess(index);
+  res.alwaysWriteName = true;
+  res.swizzle?.trim(1);
+  index.swizzle?.trim(1);
+  src.swizzle?.trim(1);
+  var assign = AssignmentStatement(res, src);
   state.addStatement(assign);
 }
 

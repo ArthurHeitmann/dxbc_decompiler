@@ -336,15 +336,15 @@ DataType _parseRdefType(RdefType type, {int? size}) {
           member.name,
           type,
           member.type.wElements,
-          type.size,
+          type.size * max(1, member.type.wElements),
           offset,
         ));
-        offset += type.size;
+        offset += type.size * max(1, member.type.wElements);
       }
       return StructDataType(
         members,
         type.name,
-        size!,
+        size ?? members.fold(0, (sum, member) => sum + member.size),
         includeInOutput: false,
       );
     default:

@@ -156,11 +156,28 @@ class Swizzle {
     return maxC - minC + 1;
   }
 
+  List<Component> uniqueComponents() {
+    List<Component> unique = [];
+    for (var c in components) {
+      if (!unique.contains(c))
+        unique.add(c);
+    }
+    return unique;
+  }
+
   void write(WriterState writer) {
     writer.write(".");
     for (var comp in components) {
       writer.write(comp.name);
     }
+  }
+  
+  Swizzle? copy() {
+    return Swizzle(components.toList());
+  }
+
+  void trim(int i) {
+    components.removeRange(i, components.length);
   }
 }
 
@@ -208,7 +225,7 @@ abstract class Expression implements Writable {
     if (exp is Register) {
       if (exp.offsets.isNotEmpty) {
         var binding = exp.lookupBinding(state)! as ConstantBufferBinding;
-        exp.addMemberAccess(state, binding, exp.offsets[0], 16, exp.swizzle!);
+        exp = exp.addMemberAccess(state, binding, exp.offsets[0], 16, exp.swizzle!);
       }
     }
     exp = exp.wrapModifiers(operand);
@@ -282,8 +299,13 @@ class NameExpression extends Register {
     swizzle?.write(state.mainWriter);
   }
   
+  @override
   NameExpression copy() {
-    return NameExpression(name);
+    var exp = NameExpression(name);
+    exp.swizzle = swizzle?.copy();
+    exp._memberAccess.addAll(_memberAccess);
+    exp._memberOffset.addAll(_memberOffset);
+    return exp;
   }
 }
 
@@ -388,24 +410,62 @@ class UnaryExpression extends Expression {
   }
 }
 
-mixin HasStructMemberAccess {
-  List<String>? _memberAccess;
-  Expression? _memberOffset;
+mixin HasStructMemberAccess on Expression {
+  final List<String> _memberAccess = [""];
+  final List<Expression> _memberOffset = [];
 
-  void addMemberAccess(DecompilerState state, StructLike struct, Expression offset, int offsetScale, Swizzle destSwizzle) {
+  void addDirectMemberAccess(String member) {
+    _memberAccess.last += member;
+  }
+
+  void addDynamicMemberAccess(Expression offset) {
+    _memberOffset.add(offset);
+  }
+
+  Expression addMemberAccess(DecompilerState state, StructLike struct, Expression offset, int offsetScale, Swizzle destSwizzle) {
     if (offset is HexLiteralExpression) {
       var size = destSwizzle.maxSize * 4;
       var members = struct.getMemberChainAt(offset.value * offsetScale, size);
-      if (members.length != 1)
-        throw Exception("Expected 1 member, got ${members.length}");
-      _memberAccess = [members[0].path];
+      var matrixMember = struct.isMatrixMember(offset.value * offsetScale, swizzle!.maxWidth * 4);
+      if (matrixMember.isMatrix) {
+        if (members.length != 1)
+          throw Exception("Expected 1 member to access matrix, got ${members.length}");
+        var memberPath = members[0].path;
+        var matrix = matrixMember.matrix!;
+        var matrixAccess = matrix.getMembers(offset.value * offsetScale - matrixMember.absOffset, destSwizzle);
+        if (matrixAccess.length == 1) {
+          var (offset: memOffset, component: memComp) = matrixAccess[0];
+          addDirectMemberAccess("$memberPath[$memOffset]");
+          swizzle = Swizzle([memComp]);
+        }
+        else {
+          if (this is! Register)
+            throw Exception("Matrix multi member access on non register $this not supported");
+          List<Expression> expressions = [];
+          for (var member in matrixAccess) {
+            var (offset: memOffset, component: memComp) = member;
+            var reg = (this as Register).copy();
+            reg.addDirectMemberAccess("$memberPath[$memOffset]");
+            reg.swizzle = Swizzle([memComp]);
+            expressions.add(reg);
+          }
+          return VectorExpression(expressions, "float", matrixAccess.length);
+        }
+      }
+      else {
+        if (members.length != 1)
+          throw Exception("Storing multiple member from one instruction not supported. Members: ${members.length}");
+        addDirectMemberAccess(members[0].path);
+      }
     }
     else {
       List<String> splitChain = [""];
       struct.getMemberChainDynamic(0, splitChain);
-      _memberAccess = splitChain;
-      _memberOffset = offset;
+      for (var chain in splitChain)
+        addDirectMemberAccess(chain);
+      addDynamicMemberAccess(offset);
     }
+    return this;
   }
 
   static Expression generateJoinedMemberAccess(DecompilerState state, StructLike struct, Expression offset, int offsetScale, Swizzle destSwizzle, NameExpression nameExp) {
@@ -442,7 +502,7 @@ mixin HasStructMemberAccess {
     for (var (memAccess, swizzle) in swizzledMembers) {
       var exp = nameExp.copy();
       exp.swizzle = swizzle;
-      exp._memberAccess = [memAccess.path];
+      exp.addDirectMemberAccess(memAccess.path);
       expressions.add(exp);
     }
     return VectorExpression(expressions, "float", destSwizzle.maxWidth);
@@ -462,28 +522,32 @@ mixin HasStructMemberAccess {
   }
 
   void writeMemberAccess(DecompilerState state) {
-    if (_memberAccess == null)
-      return;
     var writer = state.mainWriter;
-    writer.write(_memberAccess![0]);
-    _memberOffset?.write(state);
-    writer.write(_memberAccess!.skip(1).join());
+    for (int i = 0; i < _memberAccess.length; i++) {
+      writer.write(_memberAccess[i]);
+      if (i < _memberOffset.length) {
+        writer.write("[");
+        _memberOffset[i].write(state);
+        writer.write("]");
+      }
+    }
   }
 
-  bool get hasMemberAccess => _memberAccess != null;
+  bool get hasMemberAccess => _memberOffset.isNotEmpty || _memberAccess.length > 1 || _memberAccess.first.isNotEmpty;
 }
 
 class Register extends Expression with HasStructMemberAccess {
   final RegisterType type;
   final int index;
   final List<Expression> offsets;
+  bool alwaysWriteName = false;
 
   Register(this.type, this.index, [this.offsets = const []]);
 
   factory Register.fromOperand(DecompilerState state, Operand operand, {bool applyModifiers = true}) {
     var reg = Register(
       _operandToRegisterType[operand.operandType]!,
-      operand.indexData![0].index!,
+      operand.indexData?[0].index ?? 0,
       (operand.indexData ?? []).skip(1).map((i) {
         Expression? intIndex;
         Expression? opIndex;
@@ -500,9 +564,19 @@ class Register extends Expression with HasStructMemberAccess {
       reg.setOperandSwizzle(operand);
       if (reg.offsets.isNotEmpty) {
         var binding = reg.lookupBinding(state)! as ConstantBufferBinding;
-        reg.addMemberAccess(state, binding, reg.offsets[0], 16, reg.swizzle!);
+        var newExp = reg.addMemberAccess(state, binding, reg.offsets[0], 16, reg.swizzle!);
+        if (newExp != reg)
+          throw Exception("Expected same object");
       }
     }
+    return reg;
+  }
+
+  Register copy() {
+    var reg = Register(type, index, List.of(offsets));
+    reg.swizzle = swizzle?.copy();
+    reg._memberAccess.addAll(_memberAccess);
+    reg._memberOffset.addAll(_memberOffset);
     return reg;
   }
 
@@ -513,12 +587,12 @@ class Register extends Expression with HasStructMemberAccess {
   @override
   void write(DecompilerState state) {
     var writer = state.mainWriter;
-    if (hasMemberAccess) {
-      writeMemberAccess(state);
-    }
-    else {
+    if (!hasMemberAccess || alwaysWriteName) {
       var binding = lookupBinding(state)!;
       binding.writeName(state);
+    }
+    if (hasMemberAccess) {
+      writeMemberAccess(state);
     }
     swizzle?.write(writer);
   }
@@ -535,7 +609,6 @@ class Register extends Expression with HasStructMemberAccess {
   
   @override
   int get hashCode => Object.hashAll([type, index, ...offsets]);
-  
 }
 
 const _operandToRegisterType = {
@@ -569,11 +642,11 @@ const _operandToRegisterType = {
   // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_THIS_POINTER: RegisterType.,
   D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_UNORDERED_ACCESS_VIEW: RegisterType.uav,
   D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_THREAD_GROUP_SHARED_MEMORY: RegisterType.threadGroupSharedMemory,
-  // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID: RegisterType.,
-  // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_GROUP_ID: RegisterType.,
-  // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP: RegisterType.,
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID: RegisterType.input,
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_GROUP_ID: RegisterType.input,
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP: RegisterType.input,
   // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_COVERAGE_MASK: RegisterType.,
-  // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP_FLATTENED: RegisterType.,
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP_FLATTENED: RegisterType.input,
   // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_GS_INSTANCE_ID: RegisterType.,
   // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_OUTPUT_DEPTH_GREATER_EQUAL: RegisterType.,
   // D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_OUTPUT_DEPTH_LESS_EQUAL: RegisterType.,

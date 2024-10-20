@@ -1,4 +1,5 @@
 
+import '../file_reader/dxbc_enums.dart';
 import '../file_reader/shex/declare_opcode.dart';
 import '../file_reader/signature_reader.dart';
 import 'data_type.dart';
@@ -7,24 +8,34 @@ import 'state.dart';
 import 'statements.dart';
 
 void _parseSignature(DecompilerState state, SGN sgn, InputOutputDeclarationOpcode decl, ParameterType parameterType, String name) {
-  var register = decl.registerIndex.indexData![0].index!;
-  var signature = sgn.signatures.where((s) => s.register == register).first;
-  var semanticBase = signature.semanticName.toUpperCase();
+  var register = decl.registerIndex.indexData?[0].index;
+  var signature = sgn.signatures.where((s) => s.register == register).firstOrNull;
+  String semanticBase;
+  String semanticName;
+  String semanticIndex = "";
+  if (signature != null) {
+    semanticName = signature.semanticName;
+    semanticBase = signature.semanticName.toUpperCase();
+    if (_semanticsWithIndex.contains(semanticBase))
+      semanticIndex = signature.semanticIndex.toString();
+  }
+  else if (_operandTypeToSemanticName.containsKey(decl.registerIndex.operandType)) {
+    semanticName = _operandTypeToSemanticName[decl.registerIndex.operandType]!;
+    semanticBase = semanticName.toUpperCase();
+  }
+  else {
+    throw Exception("Operand type ${decl.registerIndex.operandType} has no index in signature");
+  }
   var dataType = _semanticToDataType[semanticBase];
   if (dataType == null) {
     throw Exception("Unknown semantic: $semanticBase");
   }
-  String semanticIndex;
-  if (_semanticsWithIndex.contains(semanticBase))
-    semanticIndex = signature.semanticIndex.toString();
-  else
-    semanticIndex = "";
   var binding = ParameterResourceBinding(
     name,
     Register.fromOperand(state, decl.registerIndex),
     dataType,
     parameterType,
-    signature.semanticName + semanticIndex,
+    semanticName + semanticIndex,
   );
   state.registerBindings[(binding.register.type, binding.register.index)] = binding;
 }
@@ -72,6 +83,12 @@ const Map<String, DataType> _semanticToDataType = {
   "SV_VERTEXID":tUint,
   "SV_VIEWPORTARRAYINDEX":tUint,
   "SV_SHADINGRATE":tUint,
+};
+const _operandTypeToSemanticName = {
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID: "SV_DispatchThreadID",
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_GROUP_ID: "SV_GroupID",
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP: "SV_GroupThreadID",
+  D3D10_SB_OPERAND_TYPE.D3D11_SB_OPERAND_TYPE_INPUT_THREAD_ID_IN_GROUP_FLATTENED: "SV_GroupIndex",
 };
 const _semanticsWithIndex = {
   "BINORMAL",

@@ -58,6 +58,7 @@ class DecompilerState {
   late final List<Opcode> opcodes;
   final List<({String name, StructDataType type, int? register})> structDefinitions = [];
   final Map<(RegisterType, int), ResourceBinding> registerBindings = {};
+  final List<String> functionAttributes = [];
   final structsWriter = WriterState();
   final resourcesWriter = WriterState();
   final parametersWriter = WriterState();
@@ -147,6 +148,9 @@ class DecompilerState {
     buffer.write(structsWriter);
     buffer.write(resourcesWriter);
     buffer.write("\n\n");
+    for (var attribute in functionAttributes) {
+      buffer.write("[$attribute]\n");
+    }
     buffer.write("void main(");
     buffer.write(parametersWriter);
     buffer.write(") ");

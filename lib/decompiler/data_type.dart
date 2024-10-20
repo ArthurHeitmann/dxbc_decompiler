@@ -76,6 +76,16 @@ class MatrixDataType extends DataType {
   void write(WriterState writer) {
     writer.write("${type.name}${rows}x$columns");
   }
+  
+  ({bool isMatrix, MatrixDataType? matrix, int absOffset}) isMatrixMember(int offset, int size, int absOffset) {
+    return (isMatrix: true, matrix: this, absOffset: absOffset);
+  }
+
+  List<({int offset, Component component})> getMembers(int offset, Swizzle swizzle) {
+    return swizzle.uniqueComponents()
+      .map((c) => (offset: c.index, component: Component.values[offset ~/ 16]))
+      .toList();
+  }
 }
 
 
@@ -99,6 +109,14 @@ class StructMember {
     writer.writeNewLine();
   }
   
+  ({bool isMatrix, MatrixDataType? matrix, int absOffset}) isMatrixMember(int offset, int size, int absOffset) {
+    if (type is StructDataType)
+      return (type as StructDataType).isMatrixMember(offset, size);
+    if (type is MatrixDataType)
+      return (type as MatrixDataType).isMatrixMember(offset, size, absOffset);
+    return (isMatrix: false, matrix: null, absOffset: 0);
+  }
+  
   List<MemberAccess> getMemberChainAt(int targetOffset, int targetSize, bool addDot) {
     String chain = "";
     var typeSize = type.size;
@@ -113,9 +131,9 @@ class StructMember {
     if (type is StructDataType) {
       chain += ".$name";
       membersAccess = (type as StructDataType).getMemberChainAt(targetOffset % typeSize, targetSize);
-    } else if (type is MatrixDataType) {
+    } /*else if (type is MatrixDataType) {
       throw Exception("Matrix member access not supported");
-    } else {
+    }*/ else {
       var availableSize = size - targetOffset;
       var readSize = min(availableSize, targetSize);
       membersAccess = [MemberAccess("", readSize, targetOffset)];
@@ -136,8 +154,7 @@ class StructMember {
         throw Exception("Can't resolve member with nested arrays");
       if (type.size > 16)
         throw Exception("Can't resolve member array size > 16 (${type.size})");
-      chainOut[lastI] += "[";
-      chainOut.add("]");
+      chainOut.add("");
       lastI += 1;
     }
     if (type is StructDataType)
@@ -166,6 +183,8 @@ class MemberAccess {
 }
 
 abstract class StructLike {
+  ({bool isMatrix, MatrixDataType? matrix, int absOffset}) isMatrixMember(int offset, int size);
+  
   List<MemberAccess> getMemberChainAt(int offset, int size);
 
   void getMemberChainDynamic(int offset, List<String> chainOut);
@@ -241,6 +260,20 @@ class StructDataType extends DataType implements StructLike {
     if (members.length != 1)
       throw Exception("Can't lookup member chain for structs with more than one member (struct $name, members: ${members.length})");
     members[0].getMemberChainDynamic(offset, chainOut, true);
+  }
+  
+  @override
+  ({bool isMatrix, MatrixDataType? matrix, int absOffset}) isMatrixMember(int offset, int size, [int absOffset = 0]) {
+    int remainingSize = size;
+    for (var member in members) {
+      if (offset >= member.offset + member.size || offset < member.offset)
+        continue;
+      var result = member.isMatrixMember(offset - member.offset, remainingSize, absOffset + member.offset);
+      if (result.isMatrix && offset + size > member.offset + member.size)
+        throw Exception("Member $name is not fully covered by matrix");
+      return result;
+    }
+    throw Exception("Offset $offset not in struct of size $size");
   }
 }
 
